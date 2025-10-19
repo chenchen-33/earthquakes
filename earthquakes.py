@@ -42,23 +42,29 @@ def get_data():
 
 def count_earthquakes(data):
     """Get the total number of earthquakes in the response."""
-    return ...
+    return len(data["features"])
 
 
 def get_magnitude(earthquake):
     """Retrive the magnitude of an earthquake item."""
-    return ...
+    return earthquake["properties"]["mag"]
 
 
 def get_location(earthquake):
     """Retrieve the latitude and longitude of an earthquake item."""
     # There are three coordinates, but we don't care about the third (altitude)
-    return ...
+    coords = earthquake["geometry"]["coordinates"]
+    return coords[1], coords[0]  # (latitude, longitude)
 
 
 def get_maximum(data):
     """Get the magnitude and location of the strongest earthquake in the data."""
-    ...
+    features = data["features"]
+    strongest = max(features, key=lambda eq: get_magnitude(eq))
+    max_magnitude = get_magnitude(strongest)
+    max_location = get_location(strongest)
+    return max_magnitude, max_location
+
 
 
 # With all the above functions defined, we can now call them and get the result
