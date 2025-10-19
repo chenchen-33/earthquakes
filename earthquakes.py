@@ -3,6 +3,7 @@
 # However, we will use a more powerful and simpler library called requests.
 # This is external library that you may need to install first.
 import requests
+import json
 
 
 def get_data():
@@ -18,8 +19,14 @@ def get_data():
             "minlongitude": "-9.756",
             "minmagnitude": "1",
             "endtime": "2018-10-11",
-            "orderby": "time-asc"}
+            "orderby": "time-asc",
+            "format": "geojson"
+            }
     )
+
+    data = json.loads(response.text)
+    print(json.dumps(data, indent=2)[:1000])
+    return data
 
     # The response we get back is an object with several fields.
     # The actual contents we care about are in its text field:
