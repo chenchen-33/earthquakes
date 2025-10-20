@@ -4,6 +4,8 @@
 # This is external library that you may need to install first.
 import requests
 import json
+import matplotlib.pyplot as plt
+from datetime import date
 
 
 def get_data():
@@ -72,3 +74,79 @@ data = get_data()
 print(f"Loaded {count_earthquakes(data)}")
 max_magnitude, max_location = get_maximum(data)
 print(f"The strongest earthquake was at {max_location} with magnitude {max_magnitude}")
+
+
+
+
+# task 12
+
+def get_year(earthquake):
+    """Extract the year in which an earthquake happened."""
+    timestamp = earthquake['properties']['time']
+    year = date.fromtimestamp(timestamp / 1000).year  # 转换为年份
+    return year
+
+
+# This is function you may want to create to break down the computations,
+# although it is not necessary. You may also change it to something different.
+def get_magnitudes_per_year(earthquakes):
+    """Retrieve the magnitudes of all the earthquakes in a given year.
+    
+    Returns a dictionary with years as keys, and lists of magnitudes as values.
+    """
+    magnitudes_by_year = {}
+    for eq in earthquakes:
+        year = get_year(eq)
+        mag = get_magnitude(eq)
+        # 排除 None 或错误数据
+        if mag is None:
+            continue
+        if year not in magnitudes_by_year:
+            magnitudes_by_year[year] = []
+        magnitudes_by_year[year].append(mag)
+    return magnitudes_by_year
+
+
+def plot_average_magnitude_per_year(earthquakes):
+    """Plot the average magnitude of earthquakes per year."""
+    magnitudes_by_year = get_magnitudes_per_year(earthquakes)
+    
+    years = sorted(magnitudes_by_year.keys())
+    avg_magnitudes = [
+        sum(magnitudes_by_year[y]) / len(magnitudes_by_year[y]) for y in years
+    ]
+
+    plt.plot(years, avg_magnitudes, "o-", color="orange")
+    plt.xlabel("Year")
+    plt.ylabel("Average Magnitude")
+    plt.title("Average Earthquake Magnitude per Year")
+    plt.grid(True)
+    plt.savefig("average_magnitude_per_year.png")
+    plt.show()
+
+
+def plot_number_per_year(earthquakes):
+    """Plot the number of earthquakes per year."""
+    magnitudes_by_year = get_magnitudes_per_year(earthquakes)
+    
+    years = sorted(magnitudes_by_year.keys())
+    counts = [len(magnitudes_by_year[y]) for y in years]
+
+    plt.plot(years, counts, "o-", color="blue")
+    plt.xlabel("Year")
+    plt.ylabel("Number of Earthquakes")
+    plt.title("Number of Earthquakes per Year")
+    plt.grid(True)
+    plt.savefig("frequency_per_year.png")
+    plt.show()
+
+
+
+# Get the data we will work with
+quakes = get_data()['features']
+
+# Plot the results - this is not perfect since the x axis is shown as real
+# numbers rather than integers, which is what we would prefer!
+plot_number_per_year(quakes)
+plt.clf()  # This clears the figure, so that we don't overlay the two plots
+plot_average_magnitude_per_year(quakes)
