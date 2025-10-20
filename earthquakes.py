@@ -4,6 +4,10 @@
 # This is external library that you may need to install first.
 import requests
 import json
+import matplotlib.pyplot as plt
+from datetime import datetime
+import numpy as np
+
 
 
 def get_data():
@@ -72,3 +76,24 @@ data = get_data()
 print(f"Loaded {count_earthquakes(data)}")
 max_magnitude, max_location = get_maximum(data)
 print(f"The strongest earthquake was at {max_location} with magnitude {max_magnitude}")
+
+from datetime import datetime
+
+#同时提取年份与震级
+def extract_year_and_magnitude(data):
+    years = []
+    magnitudes = []
+    for eq in data["features"]:
+        timestamp = eq["properties"]["time"] / 1000  # 毫秒转秒
+        year = datetime(timestamp).year
+        mag = eq["properties"]["mag"]
+        if mag is not None:
+            years.append(year)
+            magnitudes.append(mag)
+    return years, magnitudes
+
+
+
+
+
+
