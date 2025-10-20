@@ -85,7 +85,7 @@ def extract_year_and_magnitude(data):
     magnitudes = []
     for eq in data["features"]:
         timestamp = eq["properties"]["time"] / 1000  # 毫秒转秒
-        year = datetime(timestamp).year
+        year = datetime.fromtimestamp(timestamp).year
         mag = eq["properties"]["mag"]
         if mag is not None:
             years.append(year)
@@ -93,7 +93,48 @@ def extract_year_and_magnitude(data):
     return years, magnitudes
 
 
+#统计每年的数量与平均震级
+def analyse_yearly_stats(years, magnitudes):
+    unique_years = np.unique(years)
+    freq_per_year = []
+    avg_mag_per_year = []
+#enumerate() 是 Python 的一个内置函数，它能同时遍历索引和值。
+    for y in unique_years:
+        mags = [m for i, m in enumerate(magnitudes) if years[i] == y]
+        freq_per_year.append(len(mags))
+        avg_mag_per_year.append(np.mean(mags))
+    
+    return unique_years, freq_per_year, avg_mag_per_year
 
 
+import matplotlib.pyplot as plt
+# 提取年份和震级
+years, magnitudes = extract_year_and_magnitude(data)
 
+# 统计每年的数量和平均震级
+years, freq_per_year, avg_mag_per_year = analyse_yearly_stats(years, magnitudes)
 
+print("Years:", years)
+print("Average magnitude per year:", avg_mag_per_year)
+
+# 每年地震数量
+plt.figure(figsize=(8,5))
+plt.plot(years, freq_per_year, 'o-', label="Frequency per year", color='blue')
+plt.xlabel("Year")
+plt.ylabel("Number of earthquakes")
+plt.title("Earthquake frequency per year (UK)")
+plt.legend()
+plt.grid(True)
+plt.savefig("earthquake_frequency.png")   # ✅ 一定要在 show 前！
+plt.show()
+
+# 每年平均震级
+plt.figure(figsize=(8,5))
+plt.plot(years, avg_mag_per_year, 'o-', label="Average magnitude", color='orange')
+plt.xlabel("Year")
+plt.ylabel("Average magnitude")
+plt.title("Average earthquake magnitude per year (UK)")
+plt.legend()
+plt.grid(True)
+plt.savefig("earthquake_magnitude.png")   # ✅ 一定要在 show 前！
+plt.show()
